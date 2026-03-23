@@ -23,7 +23,7 @@ public class CategoryController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryDTO>> getCategoryById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<CategoryDTO>> getCategoryById(@PathVariable(name = "id") Long id) {
         try {
             CategoryDTO category = categoryService.getCategoryById(id);
             return ResponseEntity.ok(ApiResponse.success(category));

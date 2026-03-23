@@ -21,7 +21,7 @@ public class StoryController {
     
     @GetMapping
     public ResponseEntity<ApiResponse<List<StoryDTO>>> getAllStories(
-            @RequestParam(required = false) Long categoryId) {
+            @RequestParam(name = "categoryId", required = false) Long categoryId) {
         List<StoryDTO> stories;
         if (categoryId != null) {
             stories = storyService.getStoriesByCategory(categoryId);
@@ -32,13 +32,13 @@ public class StoryController {
     }
     
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<StoryDTO>>> searchStories(@RequestParam String keyword) {
+    public ResponseEntity<ApiResponse<List<StoryDTO>>> searchStories(@RequestParam(name = "keyword") String keyword) {
         List<StoryDTO> stories = storyService.searchStories(keyword);
         return ResponseEntity.ok(ApiResponse.success(stories));
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<StoryDTO>> getStoryById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<StoryDTO>> getStoryById(@PathVariable(name = "id") Long id) {
         try {
             StoryDTO story = storyService.getStoryById(id);
             return ResponseEntity.ok(ApiResponse.success(story));
@@ -48,7 +48,7 @@ public class StoryController {
     }
     
     @GetMapping("/{storyId}/episodes")
-    public ResponseEntity<ApiResponse<List<EpisodeDTO>>> getEpisodesByStory(@PathVariable Long storyId) {
+    public ResponseEntity<ApiResponse<List<EpisodeDTO>>> getEpisodesByStory(@PathVariable(name = "storyId") Long storyId) {
         List<EpisodeDTO> episodes = episodeService.getEpisodesByStory(storyId);
         return ResponseEntity.ok(ApiResponse.success(episodes));
     }

@@ -42,8 +42,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/stories/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/stories", "/api/stories/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories", "/api/categories/**").permitAll()
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                 .anyRequest().authenticated()
             )

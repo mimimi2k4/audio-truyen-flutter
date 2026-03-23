@@ -91,12 +91,28 @@ class ApiService {
   }
 
   static Map<String, dynamic> _handleResponse(http.Response response) {
-    final body = jsonDecode(response.body);
+    Map<String, dynamic> body;
+    try {
+      if (response.body.isEmpty) {
+        body = {};
+      } else {
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map<String, dynamic>) {
+          body = decoded;
+        } else if (decoded is Map) {
+          body = Map<String, dynamic>.from(decoded);
+        } else {
+          body = {'data': decoded};
+        }
+      }
+    } catch (e) {
+      body = {'message': response.body.isNotEmpty ? response.body : 'Lỗi kết nối máy chủ (Status: ${response.statusCode})'};
+    }
     
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return body;
     } else {
-      throw Exception(body['message'] ?? 'Request failed');
+      throw Exception(body['message'] ?? 'Request failed with status ${response.statusCode}');
     }
   }
 }

@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width >= 768;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -70,40 +71,43 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.headphones,
-                        color: Colors.white,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Audio Story',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Khám phá thế giới truyện audio',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
+                  // Only show logo/title on mobile (NavigationRail shows it on desktop)
+                  if (!isWide) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.headphones,
+                          color: Colors.white,
+                          size: 32,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Audio Story',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Khám phá thế giới truyện audio',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
                   // Search bar
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -175,15 +179,20 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _searchResults.length,
-      itemBuilder: (context, index) {
-        return StoryCard(
-          story: _searchResults[index],
-          onTap: () => _openStoryDetail(_searchResults[index]),
-        );
-      },
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 900),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: _searchResults.length,
+          itemBuilder: (context, index) {
+            return StoryCard(
+              story: _searchResults[index],
+              onTap: () => _openStoryDetail(_searchResults[index]),
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -223,9 +232,9 @@ class _HomeScreenState extends State<HomeScreen> {
           onRefresh: () => storyService.fetchStories(),
           child: GridView.builder(
             padding: const EdgeInsets.all(16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.65,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: _getCrossAxisCount(context),
+              childAspectRatio: 0.7,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
@@ -240,6 +249,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  int _getCrossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 5;
+    if (width >= 900) return 4;
+    if (width >= 600) return 3;
+    return 2;
+  }
+
   Widget _buildStoryGridItem(Story story) {
     final imageUrl = story.coverImage.isNotEmpty 
         ? '${ApiConstants.baseUrl}${story.coverImage}'
@@ -247,69 +264,62 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return GestureDetector(
       onTap: () => _openStoryDetail(story),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            // Image
-            Expanded(
-              flex: 3,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-                child: imageUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: AppTheme.primaryColor.withOpacity(0.1),
-                          child: const Icon(
-                            Icons.book,
-                            size: 48,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                      )
-                    : Container(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
-                        child: const Center(
-                          child: Icon(
-                            Icons.book,
-                            size: 48,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
+            // Background / Image — fills the entire card
+            imageUrl != null
+                ? CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       ),
-              ),
-            ),
-            
-            // Info
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: AppTheme.primaryColor.withOpacity(0.1),
+                      child: const Icon(
+                        Icons.book,
+                        size: 48,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  )
+                : Container(
+                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    child: const Center(
+                      child: Icon(
+                        Icons.book,
+                        size: 48,
+                        color: AppTheme.primaryColor,
+                      ),
+                    ),
+                  ),
+
+            // Gradient overlay + info at bottom
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.85),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       story.title,
@@ -317,35 +327,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: AppTheme.textPrimary,
+                        fontSize: 13,
+                        color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 4),
                     if (story.author != null && story.author!.isNotEmpty)
                       Text(
                         story.author!,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppTheme.textSecondary,
-                          fontSize: 12,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 11,
                         ),
                       ),
-                    const Spacer(),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
                         const Icon(
                           Icons.headphones,
-                          size: 14,
-                          color: AppTheme.primaryColor,
+                          size: 12,
+                          color: Colors.white70,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 3),
                         Text(
                           '${story.episodeCount} tập',
                           style: const TextStyle(
-                            color: AppTheme.primaryColor,
-                            fontSize: 12,
+                            color: Colors.white70,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

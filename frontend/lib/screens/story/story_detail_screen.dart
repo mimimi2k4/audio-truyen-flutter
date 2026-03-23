@@ -99,11 +99,12 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
   }
 
   Widget _buildContent() {
+    final isWide = MediaQuery.of(context).size.width >= 768;
     return CustomScrollView(
       slivers: [
         // App Bar with images
         SliverAppBar(
-          expandedHeight: 300,
+          expandedHeight: isWide ? 400 : 300,
           pinned: true,
           flexibleSpace: FlexibleSpaceBar(
             background: _buildImageCarousel(),
@@ -366,18 +367,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     }
 
     if (_story!.images.length == 1) {
-      return CachedNetworkImage(
-        imageUrl: '${ApiConstants.baseUrl}${_story!.images.first}',
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          color: Colors.grey[200],
-          child: const Center(child: CircularProgressIndicator()),
-        ),
-        errorWidget: (context, url, error) => Container(
-          color: AppTheme.primaryColor.withOpacity(0.2),
-          child: const Icon(Icons.book, size: 80, color: AppTheme.primaryColor),
-        ),
-      );
+      return _buildStoryImage('${ApiConstants.baseUrl}${_story!.images.first}');
     }
 
     return Stack(
@@ -385,22 +375,10 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
         CarouselSlider.builder(
           itemCount: _story!.images.length,
           itemBuilder: (context, index, realIndex) {
-            return CachedNetworkImage(
-              imageUrl: '${ApiConstants.baseUrl}${_story!.images[index]}',
-              fit: BoxFit.cover,
-              width: double.infinity,
-              placeholder: (context, url) => Container(
-                color: Colors.grey[200],
-                child: const Center(child: CircularProgressIndicator()),
-              ),
-              errorWidget: (context, url, error) => Container(
-                color: AppTheme.primaryColor.withOpacity(0.2),
-                child: const Icon(Icons.book, size: 80, color: AppTheme.primaryColor),
-              ),
-            );
+            return _buildStoryImage('${ApiConstants.baseUrl}${_story!.images[index]}');
           },
           options: CarouselOptions(
-            height: 300,
+            height: MediaQuery.of(context).size.width >= 768 ? 400 : 300,
             viewportFraction: 1,
             autoPlay: true,
             autoPlayInterval: const Duration(seconds: 5),
@@ -510,6 +488,32 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
           child: const Icon(
             Icons.play_arrow,
             color: AppTheme.primaryColor,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStoryImage(String imageUrl) {
+    final isWide = MediaQuery.of(context).size.width >= 768;
+    
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      color: Colors.black, // Dark background to fill the empty space on web
+      child: Center(
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          fit: isWide ? BoxFit.contain : BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          placeholder: (context, url) => Container(
+            color: Colors.grey[200],
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+          errorWidget: (context, url, error) => Container(
+            color: AppTheme.primaryColor.withOpacity(0.2),
+            child: const Icon(Icons.book, size: 80, color: AppTheme.primaryColor),
           ),
         ),
       ),

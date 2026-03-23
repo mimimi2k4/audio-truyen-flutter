@@ -26,24 +26,28 @@ public class StoryService {
     private final CategoryRepository categoryRepository;
     private final StoryImageRepository storyImageRepository;
     
+    @Transactional(readOnly = true)
     public List<StoryDTO> getAllStories() {
         return storyRepository.findAll().stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public List<StoryDTO> getStoriesByCategory(Long categoryId) {
         return storyRepository.findByCategoryId(categoryId).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public List<StoryDTO> searchStories(String keyword) {
         return storyRepository.searchByKeyword(keyword).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
     
+    @Transactional(readOnly = true)
     public StoryDTO getStoryById(Long id) {
         Story story = storyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Story not found"));

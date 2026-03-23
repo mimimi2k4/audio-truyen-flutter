@@ -32,7 +32,7 @@ public class AdminController {
     }
     
     @GetMapping("/users/{id}")
-    public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserDTO>> getUserById(@PathVariable(name = "id") Long id) {
         try {
             UserDTO user = userService.getUserById(id);
             return ResponseEntity.ok(ApiResponse.success(user));
@@ -43,7 +43,7 @@ public class AdminController {
     
     @PutMapping("/users/{id}")
     public ResponseEntity<ApiResponse<UserDTO>> updateUser(
-            @PathVariable Long id,
+            @PathVariable(name = "id") Long id,
             @RequestBody UpdateProfileRequest request) {
         try {
             UserDTO user = userService.updateUser(id, request);
@@ -54,7 +54,7 @@ public class AdminController {
     }
     
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable(name = "id") Long id) {
         try {
             userService.deleteUser(id);
             return ResponseEntity.ok(ApiResponse.success("User deleted successfully", null));
@@ -76,7 +76,7 @@ public class AdminController {
     
     @PutMapping("/categories/{id}")
     public ResponseEntity<ApiResponse<CategoryDTO>> updateCategory(
-            @PathVariable Long id,
+            @PathVariable(name = "id") Long id,
             @RequestBody CategoryDTO request) {
         try {
             CategoryDTO category = categoryService.updateCategory(id, request);
@@ -87,7 +87,7 @@ public class AdminController {
     }
     
     @DeleteMapping("/categories/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteCategory(@PathVariable(name = "id") Long id) {
         try {
             categoryService.deleteCategory(id);
             return ResponseEntity.ok(ApiResponse.success("Category deleted successfully", null));
@@ -109,7 +109,7 @@ public class AdminController {
     
     @PutMapping("/stories/{id}")
     public ResponseEntity<ApiResponse<StoryDTO>> updateStory(
-            @PathVariable Long id,
+            @PathVariable(name = "id") Long id,
             @RequestBody StoryRequest request) {
         try {
             StoryDTO story = storyService.updateStory(id, request);
@@ -120,7 +120,7 @@ public class AdminController {
     }
     
     @DeleteMapping("/stories/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteStory(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteStory(@PathVariable(name = "id") Long id) {
         try {
             storyService.deleteStory(id);
             return ResponseEntity.ok(ApiResponse.success("Story deleted successfully", null));
@@ -132,7 +132,7 @@ public class AdminController {
     // Episode Management
     @PostMapping("/stories/{storyId}/episodes")
     public ResponseEntity<ApiResponse<EpisodeDTO>> createEpisode(
-            @PathVariable Long storyId,
+            @PathVariable(name = "storyId") Long storyId,
             @RequestBody EpisodeRequest request) {
         try {
             EpisodeDTO episode = episodeService.createEpisode(storyId, request);
@@ -144,7 +144,7 @@ public class AdminController {
     
     @PutMapping("/episodes/{id}")
     public ResponseEntity<ApiResponse<EpisodeDTO>> updateEpisode(
-            @PathVariable Long id,
+            @PathVariable(name = "id") Long id,
             @RequestBody EpisodeRequest request) {
         try {
             EpisodeDTO episode = episodeService.updateEpisode(id, request);
@@ -155,7 +155,7 @@ public class AdminController {
     }
     
     @DeleteMapping("/episodes/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteEpisode(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteEpisode(@PathVariable(name = "id") Long id) {
         try {
             episodeService.deleteEpisode(id);
             return ResponseEntity.ok(ApiResponse.success("Episode deleted successfully", null));
